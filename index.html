@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>早餐點餐助手 - 最新版</title>
+    <title>早餐點餐助手 - 綠色清新版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
@@ -187,8 +187,8 @@
                 { id: 'd5', name: '鮮奶茶', price: 25, sizes: { '中': 0, '大': 10 } },
                 { id: 'd6', name: '美式咖啡', price: 35, sizes: { '中': 0, '大': 15 } },
                 { id: 'd7', name: '巧克力飲品', price: 40, sizes: { '中': 0, '大': 20 } },
-                { id: 'd8', name: '拿鐵', price: 45, sizes: { '中': 0, '大': 15 } }
-                 { id: 'd9', name: '草莓牛奶', price: 45, sizes:{ '瓶': 30, '大': 0 } }
+                { id: 'd8', name: '拿鐵', price: 45, sizes: { '中': 0, '大': 15 } },
+                { id: 'd9', name: '調味牛乳 (瓶)', price: 30, options: [{ title: '口味', choices: ['草莓', '巧克力', '麥芽'] }] }
             ]}
         ];
 
@@ -212,7 +212,7 @@
                             ${cat.items.map(item => `
                                 <div onclick="openOrderModal('${cat.id}', '${item.id}')" class="flex justify-between items-center p-4 rounded-2xl hover:bg-slate-50 cursor-pointer transition-all active:scale-[0.98]">
                                     <span class="font-bold text-gray-800">${item.name}</span>
-                                    <span class="text-emerald-600 font-black">$${item.price}~</span>
+                                    <span class="text-emerald-600 font-black">$${item.price}${item.id==='d9'?'':'~'}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -255,16 +255,12 @@
                     ${choices.map((c, idx) => {
                         let label = c;
                         if (key) {
-                            // 這裡顯示基礎價格或規格價格
                             const extra = tempItem[key][c];
                             if (extra > 0 && key !== 'types') label += ` (+$${extra})`;
                             else if (key === 'types') {
-                                // 顯示實際價格
                                 const actualPrice = tempItem.price + extra;
                                 label += ` ($${actualPrice})`;
                             }
-                        } else if (label.includes('+')) {
-                            // 保持原本的加購標記
                         }
                         return `<button onclick="handleOptionSelect(this)" class="choice-btn px-5 py-3 rounded-2xl border-2 font-bold transition-all ${idx===0?'bg-emerald-600 text-white border-emerald-600 shadow-md':'bg-white text-slate-500 border-slate-100'}">${label}</button>`;
                     }).join('')}
@@ -290,7 +286,6 @@
                     const match = t.match(/\+(\d+)/);
                     if (match) p += parseInt(match[1]);
                 } else if (t.includes('漢堡 ($')) {
-                     // 處理規格差價，例如 漢堡 ($50)
                      if (tempItem.types && tempItem.types['漢堡']) p += tempItem.types['漢堡'];
                 }
             });
@@ -311,7 +306,7 @@
             document.querySelectorAll('.choice-btn.text-white').forEach(b => {
                 const t = b.innerText;
                 if (!t.includes("不加")) {
-                    selections.push(t.split(' (')[0].trim()); // 只存名稱，不存價格括號
+                    selections.push(t.split(' (')[0].trim());
                     if (t.includes('+$')) price += parseInt(t.split('+$')[1]);
                     else if (t.includes('+')) {
                         const match = t.match(/\+(\d+)/);
