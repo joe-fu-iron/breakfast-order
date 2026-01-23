@@ -29,7 +29,6 @@
         .arrow-rotate { transition: transform 0.3s; }
         .rotate-180 { transform: rotate(180deg); }
 
-        /* 防止手機版橡皮筋回彈效果影響體驗 */
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
         .admin-edit-pulse {
@@ -126,216 +125,21 @@
     </div>
 
     <script>
-        // 原始菜單數據
+        // 全面更新後的菜單數據
         const INITIAL_MENU = [
-            { id: 'combo', name: '🍱 經典套餐 (附中紅茶)', items: [
-                { id: 'c1', name: '中港套餐', price: 80 }, { id: 'c2', name: '兒童套餐', price: 80 }, { id: 'c3', name: '招牌總匯', price: 90 },
-                { id: 'c4', name: '鐵板麵套餐', price: 90, options: [{ title: '口味', choices: ['黑胡椒', '蘑菇'] }] },
-                { id: 'c5', name: '大麥克套餐', price: 90 }, { id: 'c6', name: '蛋腸堡套餐', price: 90 }
+            { id: 'combo', name: '🍱 經典組合套餐 (附中紅茶)', items: [
+                { id: 'c1', name: '1號餐 中港套餐', price: 80 },
+                { id: 'c2', name: '2號餐 兒童套餐', price: 80 },
+                { id: 'c3', name: '3號餐 招牌總匯', price: 90 },
+                { id: 'c4', name: '4號餐 鐵板麵套餐', price: 90, options: [{ title: '口味', choices: ['黑胡椒', '蘑菇'] }] },
+                { id: 'c5', name: '5號餐 大麥克套餐', price: 90 },
+                { id: 'c6', name: '6號餐 蛋腸堡套餐', price: 90 }
             ]},
-            { id: 'drinks', name: '🥤 飲料類 (中/大)', items: [
-                { id: 'd1', name: '紅茶', price: 15, sizes: { '中杯': 0, '大杯': 5 }, options: [{ title: '甜度', choices: ['無糖', '微糖', '半糖', '全糖'] }, { title: '冰/熱', choices: ['冰', '去冰', '溫', '熱'] }] },
-                { id: 'd2', name: '豆漿', price: 20, sizes: { '中杯': 0, '大杯': 5 } },
-                { id: 'd3', name: '奶茶', price: 20, sizes: { '中杯': 0, '大杯': 5 } },
-                { id: 'd4', name: '鮮奶茶', price: 25, sizes: { '中杯': 0, '大杯': 10 } }
-            ]},
-            { id: 'others', name: '🍳 單點 / 炸物', items: [
-                { id: 'f1', name: '荷包蛋', price: 15 }, { id: 'f2', name: '薯條', price: 35 }, { id: 'f3', name: '雞塊(5塊)', price: 40 }, { id: 'f4', name: '煎餃(8顆)', price: 40 }
-            ]}
-        ];
-
-        // 核心狀態管理
-        let menuData = JSON.parse(localStorage.getItem('gh_breakfast_menu')) || INITIAL_MENU;
-        let cart = [];
-        let tempItem = null;
-        let tempQty = 1;
-        let isAdminMode = false;
-
-        // 初始化與渲染
-        function renderMenu() {
-            const container = document.getElementById('menu-accordion');
-            // 記住當前開啟的分類
-            const openedCats = Array.from(document.querySelectorAll('.menu-content.open')).map(el => el.id.replace('content-', ''));
-            
-            container.innerHTML = '';
-            menuData.forEach(cat => {
-                const isOpen = openedCats.includes(cat.id);
-                const section = document.createElement('div');
-                section.className = `border border-gray-100 rounded-3xl bg-white overflow-hidden transition-all ${isAdminMode ? 'ring-2 ring-orange-400/50 shadow-orange-100' : 'shadow-sm'}`;
-                
-                section.innerHTML = `
-                    <button onclick="toggleCategory('${cat.id}')" class="w-full flex justify-between items-center p-6 hover:bg-emerald-50 transition-colors">
-                        <span class="font-black text-gray-700 tracking-tight">${cat.name}</span>
-                        <svg id="arrow-${cat.id}" class="w-5 h-5 text-emerald-600 arrow-rotate ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="content-${cat.id}" class="menu-content ${isOpen ? 'open px-4' : 'px-4'}">
-                        <div class="pb-4 space-y-1 border-t border-gray-50 pt-2">
-                            ${cat.items.map(item => `
-                                <div class="flex justify-between items-center p-4 rounded-2xl hover:bg-slate-50 transition-all active:scale-[0.98]">
-                                    <div onclick="openOrderModal('${cat.id}', '${item.id}')" class="flex-grow cursor-pointer">
-                                        <p class="font-bold text-gray-800">${item.name}</p>
-                                    </div>
-                                    <div onclick="${isAdminMode ? `adminChangePrice('${cat.id}', '${item.id}')` : `openOrderModal('${cat.id}', '${item.id}')`}" 
-                                         class="px-4 py-2 rounded-xl font-black transition-all ${isAdminMode ? 'admin-edit-pulse text-orange-600 cursor-help border-2 border-orange-200' : 'text-emerald-600'}">
-                                        $${item.price}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                container.appendChild(section);
-            });
-        }
-
-        // 分類開合
-        function toggleCategory(id) {
-            const content = document.getElementById(`content-${id}`);
-            const arrow = document.getElementById(`arrow-${id}`);
-            content.classList.toggle('open');
-            arrow.classList.toggle('rotate-180');
-        }
-
-        // 管理員：修改價格
-        function toggleAdminMode() {
-            isAdminMode = !isAdminMode;
-            document.getElementById('admin-banner').classList.toggle('hidden', !isAdminMode);
-            document.getElementById('admin-btn').classList.toggle('bg-orange-500', isAdminMode);
-            renderMenu();
-        }
-
-        function adminChangePrice(catId, itemId) {
-            const cat = menuData.find(c => c.id === catId);
-            const item = cat.items.find(i => i.id === itemId);
-            const newPrice = prompt(`[改價模式] 請輸入「${item.name}」的新基礎價格：`, item.price);
-            
-            if (newPrice !== null && !isNaN(newPrice) && newPrice !== "") {
-                item.price = parseInt(newPrice);
-                localStorage.setItem('gh_breakfast_menu', JSON.stringify(menuData));
-                renderMenu();
-            }
-        }
-
-        // 點餐邏輯
-        function openOrderModal(catId, itemId) {
-            if (isAdminMode) return;
-            const cat = menuData.find(c => c.id === catId);
-            tempItem = cat.items.find(i => i.id === itemId);
-            tempQty = 1;
-
-            document.getElementById('modal-title').innerText = tempItem.name;
-            document.getElementById('modal-qty').innerText = tempQty;
-            
-            const optBox = document.getElementById('modal-options');
-            optBox.innerHTML = '';
-            
-            if (tempItem.sizes) addOptionUI(optBox, '份量規格', Object.keys(tempItem.sizes), 'sizes');
-            if (tempItem.types) addOptionUI(optBox, '品項類型', Object.keys(tempItem.types), 'types');
-            if (tempItem.options) tempItem.options.forEach(o => addOptionUI(optBox, o.title, o.choices));
-            if (tempItem.addCheese) addOptionUI(optBox, '額外加購', ['不加起司', '加起司 (+10)']);
-            
-            calcModalPrice();
-            document.getElementById('modal').classList.remove('hidden');
-        }
-
-        function addOptionUI(box, title, choices, key) {
-            const wrap = document.createElement('div');
-            wrap.innerHTML = `
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">${title}</p>
-                <div class="flex flex-wrap gap-2">
-                    ${choices.map((c, idx) => {
-                        let label = c;
-                        if (key && tempItem[key][c] > 0) label += ` (+$${tempItem[key][c]})`;
-                        return `<button onclick="handleOptionSelect(this)" class="choice-btn px-5 py-3 rounded-2xl border-2 font-bold transition-all ${idx===0?'bg-emerald-600 text-white border-emerald-600 shadow-md':'bg-white text-slate-500 border-slate-100'}">${label}</button>`;
-                    }).join('')}
-                </div>
-            `;
-            box.appendChild(wrap);
-        }
-
-        function handleOptionSelect(btn) {
-            btn.parentElement.querySelectorAll('.choice-btn').forEach(b => {
-                b.classList.replace('bg-emerald-600', 'bg-white');
-                b.classList.replace('text-white', 'text-slate-500');
-                b.classList.replace('border-emerald-600', 'border-slate-100');
-                b.classList.remove('shadow-md');
-            });
-            btn.classList.replace('bg-white', 'bg-emerald-600');
-            btn.classList.replace('text-slate-500', 'text-white');
-            btn.classList.replace('border-slate-100', 'border-emerald-600');
-            btn.classList.add('shadow-md');
-            calcModalPrice();
-        }
-
-        function calcModalPrice() {
-            let p = tempItem.price;
-            document.querySelectorAll('.choice-btn.text-white').forEach(b => {
-                const t = b.innerText;
-                if (t.includes('+$')) p += parseInt(t.split('+$')[1]);
-                else if (t.includes('+')) p += parseInt(t.split('+')[1]);
-            });
-            document.getElementById('modal-price-display').innerText = `$${p * tempQty}`;
-        }
-
-        function changeQty(v) {
-            tempQty = Math.max(1, tempQty + v);
-            document.getElementById('modal-qty').innerText = tempQty;
-            calcModalPrice();
-        }
-
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-
-        function addToCart() {
-            const selections = [];
-            let price = tempItem.price;
-            document.querySelectorAll('.choice-btn.text-white').forEach(b => {
-                const t = b.innerText;
-                if (!t.includes("不加")) {
-                    selections.push(t.trim());
-                    if (t.includes('+$')) price += parseInt(t.split('+$')[1]);
-                    else if (t.includes('+')) price += parseInt(t.split('+')[1]);
-                }
-            });
-            cart.push({ name: tempItem.name, unit: price, qty: tempQty, opts: selections.join(' / ') });
-            refreshCartUI();
-            closeModal();
-        }
-
-        function refreshCartUI() {
-            const total = cart.reduce((s, i) => s + (i.unit * i.qty), 0);
-            const count = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cart-total').innerText = total;
-            document.getElementById('cart-count').innerText = count;
-        }
-
-        function clearCart() { if(confirm('要清空目前的所有餐點嗎？')) { cart = []; refreshCartUI(); } }
-
-        function saveUserData() { localStorage.setItem('user_name', document.getElementById('user-name').value); }
-
-        function exportToLine() {
-            const name = document.getElementById('user-name').value || '未署名';
-            if (cart.length === 0) return alert('清單是空的喔！');
-            
-            let msg = `【早安！早餐點餐單】\n👤 訂購人：${name}\n━━━━━━━━━━━━━━\n`;
-            cart.forEach((i, idx) => {
-                msg += `${idx+1}. ${i.name} x ${i.qty}\n   ${i.opts ? `⤷ ${i.opts}` : ''}\n   💰 小計：$${i.unit * i.qty}\n`;
-            });
-            msg += `━━━━━━━━━━━━━━\n總金額：NT$ ${document.getElementById('cart-total').innerText}\n辛苦了，謝謝！`;
-            
-            const area = document.createElement('textarea');
-            area.value = msg; document.body.appendChild(area); area.select();
-            document.execCommand('copy'); document.body.removeChild(area);
-
-            const hint = document.getElementById('copy-msg');
-            hint.classList.remove('hidden');
-            setTimeout(() => hint.classList.add('hidden'), 3000);
-        }
-
-        // 初始化
-        document.getElementById('user-name').value = localStorage.getItem('user_name') || '';
-        renderMenu();
-    </script>
-</body>
-</html>
+            { id: 'breads', name: '🍞 吐司 / 漢堡 / 可頌', items: [
+                { id: 'b1', name: '豬肉蛋', price: 40, types: { '吐司': 0, '漢堡': 10, '可頌': 20 }, addCheese: true },
+                { id: 'b2', name: '香雞蛋', price: 40, types: { '吐司': 0, '漢堡': 10, '可頌': 20 }, addCheese: true },
+                { id: 'b3', name: '鮪魚蛋', price: 45, types: { '吐司': 0, '漢堡': 10, '可頌': 20 }, addCheese: true },
+                { id: 'b4', name: '培根蛋', price: 40, types: { '吐司': 0, '漢堡': 10, '可頌': 20 }, addCheese: true },
+                { id: 'b5', name: '薯餅蛋', price: 40, types: { '吐司': 0, '漢堡': 10, '可頌': 20 }, addCheese: true },
+                { id: 'b6', name: '卡拉雞腿蛋', price: 65, types: { '吐司': 0, '漢堡': 10, '可頌': 15 }, addCheese: true },
+                { id: 'b7', name: '厚牛肉起司蛋', price: 75, types: {
