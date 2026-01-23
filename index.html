@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>早餐點餐助手 - 綠色清新版</title>
+    <title>早餐點餐助手 - 確認後傳送</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
@@ -52,15 +52,14 @@
                 <button onclick="clearCart()" class="bg-gray-100 p-4 rounded-2xl text-gray-400 hover:bg-red-50 hover:text-red-400 transition-all active:scale-90">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
-                <button onclick="exportToLine()" class="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-center space-x-2 transition-all active:scale-95">
-                    <span class="text-lg">複製 LINE 點餐訊息</span>
+                <button onclick="showConfirmModal()" class="flex-grow bg-[#06C755] hover:bg-[#05b34d] text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-center space-x-2 transition-all active:scale-95">
+                    <span class="text-lg">確認清單並發送</span>
                 </button>
             </div>
-            <p id="copy-msg" class="text-center text-emerald-600 text-[10px] mt-3 hidden font-black tracking-widest animate-bounce">已複製到剪貼簿 ✅</p>
         </footer>
     </div>
 
-    <!-- Order Modal -->
+    <!-- Order Modal (Item Selection) -->
     <div id="modal" class="fixed inset-0 bg-black/70 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2rem] p-8 shadow-2xl">
             <div class="flex justify-between items-start mb-6">
@@ -82,6 +81,33 @@
                 </div>
             </div>
             <button onclick="addToCart()" class="w-full py-5 bg-emerald-600 rounded-[1.5rem] font-black text-white text-lg shadow-xl shadow-emerald-100 active:scale-95 transition-all">確認加入</button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal (Final Check) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/80 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div class="bg-emerald-600 p-6 text-white text-center">
+                <h3 class="text-xl font-black">最後確認點餐內容</h3>
+                <p class="text-emerald-100 text-xs mt-1">請核對您的餐點明細</p>
+            </div>
+            <div class="p-6 max-h-[60vh] overflow-y-auto no-scrollbar" id="confirm-list">
+                <!-- 內容由 JS 動態生成 -->
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-gray-100">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="font-bold text-gray-500">總計金額</span>
+                    <span class="text-2xl font-black text-emerald-600">$<span id="confirm-total">0</span></span>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeConfirmModal()" class="flex-1 py-4 bg-white border-2 border-gray-200 text-gray-400 font-bold rounded-2xl active:scale-95 transition-all">返回修改</button>
+                    <button onclick="executeSend()" class="flex-[2] py-4 bg-[#06C755] text-white font-black rounded-2xl shadow-lg shadow-emerald-100 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <span>確定發送</span>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12l-11-11v7h-13v8h13v7z"/></svg>
+                    </button>
+                </div>
+                <p id="action-hint" class="text-center text-[10px] text-emerald-600 mt-3 font-bold hidden">正在前往 LINE...</p>
+            </div>
         </div>
     </div>
 
@@ -331,30 +357,76 @@
         }
 
         function clearCart() { 
-            const msg = document.createElement('div');
             if(confirm('要清空目前的所有餐點嗎？')) { cart = []; refreshCartUI(); } 
         }
 
         function saveUserData() { localStorage.setItem('user_name', document.getElementById('user-name').value); }
 
-        function exportToLine() {
+        // --- 新增：顯示確認彈窗 ---
+        function showConfirmModal() {
+            const name = document.getElementById('user-name').value;
+            if (!name) {
+                alert('請先輸入訂購人姓名！');
+                return;
+            }
+            if (cart.length === 0) {
+                alert('清單是空的喔！請先挑選餐點。');
+                return;
+            }
+
+            const listDiv = document.getElementById('confirm-list');
+            listDiv.innerHTML = `<p class="mb-4 text-gray-800 font-bold border-b pb-2">訂購人：${name}</p>`;
+            
+            cart.forEach((i, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100";
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="font-black text-gray-700">${idx+1}. ${i.name}</p>
+                            <p class="text-xs text-gray-400 font-bold mt-1">${i.opts || '標準版本'}</p>
+                        </div>
+                        <div class="text-right ml-4">
+                            <p class="text-emerald-600 font-black">$${i.unit * i.qty}</p>
+                            <p class="text-[10px] text-gray-400 font-bold">x ${i.qty}</p>
+                        </div>
+                    </div>
+                `;
+                listDiv.appendChild(itemDiv);
+            });
+
+            document.getElementById('confirm-total').innerText = document.getElementById('cart-total').innerText;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            document.getElementById('action-hint').classList.add('hidden');
+        }
+
+        // --- 執行發送至 LINE ---
+        function executeSend() {
             const name = document.getElementById('user-name').value || '未署名';
-            if (cart.length === 0) return alert('清單是空的喔！');
             let msg = `【早安點餐】👤：${name}\n━━━━━━━━━━━━━━\n`;
             cart.forEach((i, idx) => {
-                // 修正需求：單一品項不分段，同一行呈現
                 const optStr = i.opts ? `(${i.opts})` : '';
                 msg += `${idx+1}. ${i.name}${optStr} x${i.qty} $${i.unit * i.qty}\n`;
             });
             msg += `━━━━━━━━━━━━━━\n總金額：$ ${document.getElementById('cart-total').innerText}`;
             
-            const area = document.createElement('textarea');
-            area.value = msg; document.body.appendChild(area); area.select();
-            document.execCommand('copy'); document.body.removeChild(area);
+            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
+            document.getElementById('action-hint').classList.remove('hidden');
             
-            const hint = document.getElementById('copy-msg');
-            hint.classList.remove('hidden');
-            setTimeout(() => hint.classList.add('hidden'), 3000);
+            // 跳轉到 LINE
+            window.location.href = lineUrl;
+
+            // 備選方案（複製到剪貼簿）
+            setTimeout(() => {
+                const area = document.createElement('textarea');
+                area.value = msg; document.body.appendChild(area); area.select();
+                document.execCommand('copy'); document.body.removeChild(area);
+                document.getElementById('action-hint').innerText = "已為您複製訊息至剪貼簿 ✅";
+            }, 2000);
         }
 
         document.getElementById('user-name').value = localStorage.getItem('user_name') || '';
