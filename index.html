@@ -14,6 +14,7 @@
         .rotate-180 { transform: rotate(180deg); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .choice-btn { touch-action: manipulation; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-40">
@@ -22,7 +23,7 @@
         <!-- Header -->
         <header class="bg-emerald-600 p-6 text-white text-center relative shadow-lg">
             <h1 class="text-2xl font-black tracking-tighter">早餐點餐助手</h1>
-            <p class="text-emerald-100 text-[10px] mt-1 font-bold tracking-widest uppercase">Latest Menu Updated</p>
+            <p class="text-emerald-100 text-[10px] mt-1 font-bold tracking-widest uppercase">Smart Ordering System</p>
         </header>
 
         <!-- User Input -->
@@ -39,7 +40,7 @@
             <div class="flex justify-between items-center mb-4 px-1">
                 <div class="flex flex-col">
                     <span class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Total Items</span>
-                    <span class="text-gray-700 font-black"><span id="cart-count" class="text-emerald-600 text-xl">0</span> 份餐點</span>
+                    <span class="text-gray-700 font-black"><span id="cart-count" class="text-emerald-600 text-xl">0</span> 份</span>
                 </div>
                 <div class="flex flex-col items-end">
                     <span class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Grand Total</span>
@@ -55,7 +56,7 @@
                     <span class="text-lg">複製 LINE 點餐訊息</span>
                 </button>
             </div>
-            <p id="copy-msg" class="text-center text-emerald-600 text-[10px] mt-3 hidden font-black tracking-widest animate-bounce">COPIED ✅</p>
+            <p id="copy-msg" class="text-center text-emerald-600 text-[10px] mt-3 hidden font-black tracking-widest animate-bounce">已複製到剪貼簿 ✅</p>
         </footer>
     </div>
 
@@ -73,7 +74,7 @@
             </div>
             <div id="modal-options" class="space-y-6 max-h-[40vh] overflow-y-auto pr-2 no-scrollbar"></div>
             <div class="flex items-center justify-between bg-slate-50 p-5 rounded-[1.5rem] my-8">
-                <span class="font-black text-slate-500 uppercase text-xs tracking-widest">Quantity</span>
+                <span class="font-black text-slate-500 uppercase text-xs tracking-widest">數量</span>
                 <div class="flex items-center space-x-8">
                     <button onclick="changeQty(-1)" class="w-12 h-12 bg-white border-2 border-slate-200 rounded-2xl shadow-sm text-2xl font-bold">-</button>
                     <span id="modal-qty" class="text-2xl font-black w-6 text-center">1</span>
@@ -180,14 +181,14 @@
                 { id: 'f19', name: '芋頭糕 (2片)', price: 65, options: [{ title: '加購', choices: ['不加蛋', '加蛋 (+15)'] }] }
             ]},
             { id: 'drinks', name: '🥤 飲料類 (中 / 大)', items: [
-                { id: 'd1', name: '紅茶', price: 15, sizes: { '中': 0, '大': 5 } },
-                { id: 'd2', name: '豆漿 / 無糖豆漿', price: 20, sizes: { '中': 0, '大': 5 } },
-                { id: 'd3', name: '奶茶', price: 20, sizes: { '中': 0, '大': 5 } },
+                { id: 'd1', name: '紅茶', price: 15, sizes: { '中': 0, '大': 5 }, hasTemp: true },
+                { id: 'd2', name: '豆漿 / 無糖豆漿', price: 20, sizes: { '中': 0, '大': 5 }, hasTemp: true },
+                { id: 'd3', name: '奶茶', price: 20, sizes: { '中': 0, '大': 5 }, hasTemp: true },
                 { id: 'd4', name: '柳橙汁', price: 25, sizes: { '中': 0, '大': 10 } },
-                { id: 'd5', name: '鮮奶茶', price: 25, sizes: { '中': 0, '大': 10 } },
-                { id: 'd6', name: '美式咖啡', price: 35, sizes: { '中': 0, '大': 15 } },
-                { id: 'd7', name: '巧克力飲品', price: 40, sizes: { '中': 0, '大': 20 } },
-                { id: 'd8', name: '拿鐵', price: 45, sizes: { '中': 0, '大': 15 } },
+                { id: 'd5', name: '鮮奶茶', price: 25, sizes: { '中': 0, '大': 10 }, hasTemp: true },
+                { id: 'd6', name: '美式咖啡', price: 35, sizes: { '中': 0, '大': 15 }, hasTemp: true },
+                { id: 'd7', name: '巧克力飲品', price: 40, sizes: { '中': 0, '大': 20 }, hasTemp: true },
+                { id: 'd8', name: '拿鐵', price: 45, sizes: { '中': 0, '大': 15 }, hasTemp: true },
                 { id: 'd9', name: '調味牛乳 (瓶)', price: 30, options: [{ title: '口味', choices: ['草莓', '巧克力', '麥芽'] }] }
             ]}
         ];
@@ -240,6 +241,7 @@
             
             if (tempItem.types) addOptionUI(optBox, '品項規格', Object.keys(tempItem.types), 'types');
             if (tempItem.sizes) addOptionUI(optBox, '容量', Object.keys(tempItem.sizes), 'sizes');
+            if (tempItem.hasTemp) addOptionUI(optBox, '溫度', ['冰', '溫']);
             if (tempItem.options) tempItem.options.forEach(o => addOptionUI(optBox, o.title, o.choices));
             if (tempItem.addCheese) addOptionUI(optBox, '加購', ['不加起司', '加起司 (+10)']);
             
@@ -316,7 +318,7 @@
                     }
                 }
             });
-            cart.push({ name: tempItem.name, unit: price, qty: tempQty, opts: selections.join(' / ') });
+            cart.push({ name: tempItem.name, unit: price, qty: tempQty, opts: selections.join('') });
             refreshCartUI();
             closeModal();
         }
@@ -328,7 +330,10 @@
             document.getElementById('cart-count').innerText = count;
         }
 
-        function clearCart() { if(confirm('要清空目前的所有餐點嗎？')) { cart = []; refreshCartUI(); } }
+        function clearCart() { 
+            const msg = document.createElement('div');
+            if(confirm('要清空目前的所有餐點嗎？')) { cart = []; refreshCartUI(); } 
+        }
 
         function saveUserData() { localStorage.setItem('user_name', document.getElementById('user-name').value); }
 
@@ -337,12 +342,16 @@
             if (cart.length === 0) return alert('清單是空的喔！');
             let msg = `【早安點餐】👤：${name}\n━━━━━━━━━━━━━━\n`;
             cart.forEach((i, idx) => {
-                msg += `${idx+1}. ${i.name} x ${i.qty}\n   ${i.opts ? `⤷ ${i.opts}` : ''}\n   💰 $${i.unit * i.qty}\n`;
+                // 修正需求：單一品項不分段，同一行呈現
+                const optStr = i.opts ? `(${i.opts})` : '';
+                msg += `${idx+1}. ${i.name}${optStr} x${i.qty} $${i.unit * i.qty}\n`;
             });
             msg += `━━━━━━━━━━━━━━\n總金額：$ ${document.getElementById('cart-total').innerText}`;
+            
             const area = document.createElement('textarea');
             area.value = msg; document.body.appendChild(area); area.select();
             document.execCommand('copy'); document.body.removeChild(area);
+            
             const hint = document.getElementById('copy-msg');
             hint.classList.remove('hidden');
             setTimeout(() => hint.classList.add('hidden'), 3000);
