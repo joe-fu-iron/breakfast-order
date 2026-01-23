@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>早餐點餐助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .menu-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+            opacity: 0;
+        }
+
+        .menu-content.open {
+            max-height: 5000px; 
+            opacity: 1;
+            margin-top: 0.5rem;
+        }
+
+        .arrow-rotate { transition: transform 0.3s; }
+        .rotate-180 { transform: rotate(180deg); }
+
+        /* 防止手機版橡皮筋回彈效果影響體驗 */
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+        .admin-edit-pulse {
+            animation: pulse-bg 2s infinite;
+        }
+
+        @keyframes pulse-bg {
+            0% { background-color: rgba(254, 249, 195, 0.5); }
+            50% { background-color: rgba(254, 249, 195, 1); }
+            100% { background-color: rgba(254, 249, 195, 0.5); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-40">
+
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col relative">
+        
+        <!-- Top Header -->
+        <header class="bg-emerald-800 p-6 text-white text-center relative shadow-lg">
+            <h1 class="text-2xl font-black tracking-tighter">早餐點餐助手</h1>
+            <p class="text-emerald-200 text-[10px] mt-1 font-bold tracking-widest uppercase">Smart Ordering System</p>
+            
+            <!-- 管理員模式切換鈕 -->
+            <button onclick="toggleAdminMode()" id="admin-btn" class="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-emerald-700/50 hover:bg-emerald-600 transition-all active:scale-90 border border-emerald-500/30">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3
