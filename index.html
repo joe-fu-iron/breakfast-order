@@ -20,10 +20,10 @@
 <body class="bg-slate-50 min-h-screen pb-40">
 
     <div class="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col relative">
-        <!-- 頂部標題：改為淡綠色 (Emerald) -->
+        <!-- 頂部標題：淡綠色 -->
         <header class="bg-emerald-500 p-6 text-white text-center shadow-lg">
             <h1 class="text-2xl font-black tracking-tighter">早餐點餐助手</h1>
-            <p class="text-emerald-100 text-[10px] mt-1 font-bold tracking-widest uppercase">7-Category Split Menu</p>
+            <p class="text-emerald-100 text-[10px] mt-1 font-bold tracking-widest uppercase">7-Category Optimized Menu</p>
         </header>
 
         <!-- 訂購人輸入 -->
@@ -266,9 +266,9 @@
                 { name: '豆漿', price: 20, types: {'中':20, '大':25}, temps: ['冰', '溫'] },
                 { name: '無糖豆漿', price: 20, types: {'中':20, '大':25}, temps: ['冰', '溫'] },
                 { name: '奶茶', price: 20, types: {'中':20, '大':25}, temps: ['冰', '溫'] },
-                { name: '巧克力牛乳', price: 25, types: {'中':25, '大':35}, temps: ['冰', '溫'] },
-                { name: '草莓牛乳', price: 25, types: {'中':25, '大':35}, temps: ['冰', '溫'] },
-                { name: '麥芽牛乳', price: 25, types: {'中':25, '大':35}, temps: ['冰', '溫'] },
+                { name: '巧克力牛乳', price: 30 }, // 調整為固定 30 元
+                { name: '草莓牛乳', price: 30 },   // 調整為固定 30 元
+                { name: '麥芽牛乳', price: 30 },   // 調整為固定 30 元
                 { name: '巧克力歐蕾', price: 35, types: {'中':35, '大':50}, temps: ['冰', '溫'] },
                 { name: '鮮奶茶', price: 40, types: {'中':40, '大':60}, temps: ['冰', '溫'] },
                 { name: '美式咖啡', price: 35, types: {'中':35, '大':50}, temps: ['冰', '溫'] },
@@ -323,10 +323,17 @@
             document.getElementById('modal-qty').innerText = tempQty;
             const optBox = document.getElementById('modal-options');
             optBox.innerHTML = '';
-            if (tempItem.types) renderOptions(optBox, '尺寸選擇', Object.keys(tempItem.types));
-            if (tempItem.options) tempItem.options.forEach(o => renderOptions(optBox, o.title, o.choices));
-            if (tempItem.temps) renderOptions(optBox, '溫度', tempItem.temps);
-            if (tempItem.addCheese) renderOptions(optBox, '加起司 (+10元)', ['不加起司', '加起司 (+10)']);
+            
+            // 如果是調味乳 (巧克力、草莓、麥芽)，不渲染選項
+            if (!['巧克力牛乳', '草莓牛乳', '麥芽牛乳'].includes(tempItem.name)) {
+                if (tempItem.types) renderOptions(optBox, '尺寸選擇', Object.keys(tempItem.types));
+                if (tempItem.options) tempItem.options.forEach(o => renderOptions(optBox, o.title, o.choices));
+                if (tempItem.temps) renderOptions(optBox, '溫度', tempItem.temps);
+                if (tempItem.addCheese) renderOptions(optBox, '加起司 (+10元)', ['不加起司', '加起司 (+10)']);
+            } else {
+                optBox.innerHTML = '<p class="text-sm text-gray-500 font-bold">規格：固定單一規格</p>';
+            }
+            
             updateModalPrice();
             document.getElementById('modal').classList.remove('hidden');
         }
@@ -424,12 +431,30 @@
             const name = document.getElementById('user-name').value;
             const note = document.getElementById('order-note').value.trim();
             const total = document.getElementById('cart-total').innerText;
-            let msg = `【早安點餐單】\n👤 訂購人：${name}\n━━━━━━━━━━━━\n`;
+            
+            // 訊息格式優化
+            let msg = `【 ☕ 早安點餐單 】\n`;
+            msg += `━━━━━━━━━━━━━━\n`;
+            msg += `👤 訂購人：${name}\n`;
+            msg += `━━━━━━━━━━━━━━\n`;
+            
             cart.forEach((item, idx) => {
-                msg += `${idx + 1}. ${item.name}\n   └ ${item.opts || '標準'} x${item.qty} ($${item.price * item.qty})\n`;
+                msg += `${idx + 1}. ${item.name}\n`;
+                msg += `   └ 份量：x${item.qty}\n`;
+                if (item.opts) {
+                    msg += `   └ 選項：${item.opts}\n`;
+                }
+                msg += `   └ 小計：$${item.price * item.qty}\n`;
+                msg += `--------------------------\n`;
             });
-            if (note) msg += `━━━━━━━━━━━━\n📝 備註：${note}\n`;
-            msg += `━━━━━━━━━━━━\n💰 總計：$${total} 元`;
+            
+            if (note) {
+                msg += `📝 備註事項：\n   ${note}\n`;
+                msg += `━━━━━━━━━━━━━━\n`;
+            }
+            
+            msg += `💰 訂單總金額：$${total} 元`;
+            
             window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
         }
 
