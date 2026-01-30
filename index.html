@@ -364,7 +364,7 @@
                 if ((c >= 0x0001 && c <= 0x007e) || (0xff60 <= c && c <= 0xff9f)) {
                     len += 1;
                 } else {
-                    len += 2;
+                    len += 1;
                 }
             }
             return len;
@@ -380,7 +380,7 @@
             msg += `━━━━━━━━━━\n`;
             
             // 設定品名欄位視覺寬度 (預設 16，約 8 個中文字)
-            const NAME_COLUMN_WIDTH = 14;
+            const NAME_COLUMN_WIDTH = 12;
 
             cart.forEach((item, idx) => {
                 const fullItemName = `${item.opts}${item.name}`;
