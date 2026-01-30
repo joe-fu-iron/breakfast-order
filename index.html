@@ -85,7 +85,7 @@
             </div>
             <div class="p-6 max-h-[40vh] overflow-y-auto" id="confirm-list"></div>
             <div class="px-6 pb-4">
-                <textarea id="order-note" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:outline-none focus:border-emerald-500" rows="2" placeholder="備註 (如：蛋半熟、去冰、不加洋蔥...)"></textarea>
+                <textarea id="order-note" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:outline-none focus:border-emerald-500" rows="2" placeholder="備註 (如：6:40取餐、蛋半熟、去冰...)"></textarea>
             </div>
             <div class="p-8 bg-slate-50 border-t">
                 <div class="flex justify-between items-center mb-6">
@@ -122,7 +122,6 @@
                 { name: '勁辣雞腿蛋吐司', price: 70, addCheese: true }, { name: '西西里雞排蛋吐司', price: 70, addCheese: true },
                 { name: '原汁厚牛蛋吐司', price: 85, addCheese: true }, { name: '招牌總匯吐司', price: 70, addCheese: true },
                 { name: '里肌總匯吐司', price: 75, addCheese: true },
-                { name: '咔啦雞總匯吐司', price: 80, addCheese: true, options:[{title:'口味', choices:['原味','辣味']}] },
                 { name: '咔啦雞總匯吐司', price: 80, addCheese: true, options:[{title:'口味', choices:['原味','辣味']}] }
             ]},
             { id: 'cat2_burger', name: '🍔 2. 漢堡系列', items: [
@@ -149,16 +148,6 @@
                 { name: '燻雞肉片蛋餅', price: 50, addCheese: true }, { name: '檸檬雞胸蛋餅', price: 50, addCheese: true },
                 { name: '勁辣雞腿蛋餅', price: 60, addCheese: true }, { name: '咔啦雞蛋餅', price: 60, addCheese: true }
             ]},
-            { id: 'cat3_hefen', name: '🥢 3. 河粉系列', items: [
-                { name: '原味河粉', price: 35, addCheese: true }, { name: '起司河粉', price: 45 },
-                { name: '火腿河粉', price: 45, addCheese: true }, { name: '玉米河粉', price: 50, addCheese: true },
-                { name: '肉鬆河粉', price: 50, addCheese: true }, { name: '培根河粉', price: 50, addCheese: true },
-                { name: '蔬菜河粉', price: 50, addCheese: true }, { name: '熱狗河粉', price: 50, addCheese: true },
-                { name: '薯餅河粉', price: 50, addCheese: true }, { name: '香雞河粉', price: 50, addCheese: true },
-                { name: '里肌河粉', price: 60, addCheese: true }, { name: '鮪魚河粉', price: 60, addCheese: true },
-                { name: '燻雞肉片河粉', price: 60, addCheese: true }, { name: '檸檬雞胸河粉', price: 60, addCheese: true },
-                { name: '勁辣雞腿河粉', price: 70, addCheese: true }, { name: '咔啦雞河粉', price: 70, addCheese: true }
-            ]},
             { id: 'cat4_scallion', name: '🥟 4. 蔥抓餅 / 牛角可頌', items: [
                 { name: '原味抓餅', price: 30 }, { name: '蔥抓餅加蛋', price: 40, addCheese: true },
                 { name: '起司蛋抓餅', price: 50 }, { name: '玉米蛋抓餅', price: 50 },
@@ -170,7 +159,7 @@
                 { name: '香雞牛角可頌', price: 60 }, { name: '薯餅牛角可頌', price: 60 },
                 { name: '檸檬雞胸牛角可頌', price: 70 }, { name: '里肌牛角可頌', price: 70 },
                 { name: '鮪魚牛角可頌', price: 70 }, { name: '勁辣雞腿牛角可頌', price: 80 },
-                { name: '果醬牛角可頌', price: 45, options: [{ title: '口味', choices: ['花生', '草莓', '巧克力', '奶酥', '藍莓', '香蒜'] }]}
+                { name: '牛角可頌', price: 45, options: [{ title: '口味', choices: ['花生', '草莓', '巧克力', '奶酥', '藍莓', '香蒜'] }]}
             ]},
             { id: 'cat4_jam', name: '🍓 4. 果醬系列 (吐司/厚片)', items: [
                 { name: '果醬吐司', price: 20, options: [{ title: '口味', choices: ['花生', '草莓', '巧克力', '奶酥', '藍莓', '香蒜'] }] },
@@ -366,6 +355,21 @@
 
         function closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); }
 
+        // 新增：計算字串顯示長度 (全形=2, 半形=1)
+        function getVisualLength(str) {
+            let len = 0;
+            for (let i = 0; i < str.length; i++) {
+                const c = str.charCodeAt(i);
+                // 基本漢字與全形標點符號
+                if ((c >= 0x0001 && c <= 0x007e) || (0xff60 <= c && c <= 0xff9f)) {
+                    len += 1;
+                } else {
+                    len += 2;
+                }
+            }
+            return len;
+        }
+
         function sendToLine() {
             const name = document.getElementById('user-name').value;
             const note = document.getElementById('order-note').value.trim();
@@ -375,17 +379,28 @@
             msg += `👤 訂購人：${name}\n`;
             msg += `━━━━━━━━━━\n`;
             
+            // 設定品名欄位視覺寬度 (預設 16，約 8 個中文字)
+            const NAME_COLUMN_WIDTH = 16;
+
             cart.forEach((item, idx) => {
-                msg += `${idx + 1}. ${item.opts}${item.name}x${item.qty}-${item.price * item.qty}元\n`;
+                const fullItemName = `${item.opts}${item.name}`;
+                const visualLen = getVisualLength(fullItemName);
+                const paddingNeeded = Math.max(0, NAME_COLUMN_WIDTH - visualLen);
+                
+                // 補齊半形空格
+                const padding = " ".repeat(paddingNeeded);
+                
+                msg += `${idx + 1}. ${fullItemName}${padding} x${item.qty} - ${item.price * item.qty}元\n`;
             });
             
+            msg += `━━━━━━━━━━━\n`;
             if (note) {
-                msg += `━━━━━━━━━━━\n`;
                 msg += `📝 備註：${note}\n`;
+                msg += `━━━━━━━━━━━\n`;
             }
             
-            msg += `━━━━━━━━━━━\n`;
-            msg += `💰 總計：${total} 元`;
+            // 總計也做一點右對齊感覺
+            msg += `               💰 總計：${total} 元`;
             
             window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
         }
