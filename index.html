@@ -65,7 +65,6 @@
             </div>
             <p id="modal-price-display" class="text-3xl font-black text-emerald-600 mb-6"></p>
             <div id="modal-options" class="space-y-6 max-h-[45vh] overflow-y-auto pr-2"></div>
-            
             <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl my-6 border border-slate-100">
                 <span class="font-bold text-gray-400 text-xs tracking-widest uppercase">數量</span>
                 <div class="flex items-center space-x-6">
@@ -79,7 +78,7 @@
     </div>
 
     <div id="confirm-modal" class="fixed inset-0 bg-black/80 hidden z-[60] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-slide-up">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-slide-up">
             <div class="bg-emerald-600 p-6 text-white text-center">
                 <h3 class="text-lg font-black tracking-widest">訂單詳情確認</h3>
             </div>
@@ -101,7 +100,6 @@
     </div>
 
     <script>
-        // 修正後的 MENU_DATA，添加了遺失的逗號
         const MENU_DATA = [
             { id: 'cat1', name: '🍱 1. 經典組合套餐 (附中紅茶)', items: [
                 { name: '紅茶/中港套餐', price: 85, desc: '煎餃5顆、蘿蔔糕1片、荷包蛋', temps: ['冰', '溫'], addCheese: true },
@@ -113,12 +111,12 @@
             ]},
             { id: 'cat2_toast', name: '🍞 2. 吐司系列', items: [
                 { name: '煎蛋吐司', price: 30, addCheese: true }, { name: '起司蛋吐司', price: 35 },
-                { name: '火腿蛋吐司', price: 35, addCheese: true }, { name: '豬肉蛋吐司', price: 40, addCheese: true }, // <-- 加了逗號
-                { name: '培根蛋吐司', price: 40, addCheese: true },{ name: '肉鬆蛋吐司', price: 40, addCheese: true },
-                { name: '香雞蛋吐司', price: 45, addCheese: true },{ name: '薯餅蛋吐司', price: 45, addCheese: true },
-                { name: '里肌蛋吐司', price: 50, addCheese: true },{ name: '鮪魚蛋吐司', price: 50, addCheese: true },
-                { name: '牛肉蛋吐司', price: 60, addCheese: true },{ name: '燻雞肉片蛋吐司', price: 60, addCheese: true },
-                { name: '起司豬排蛋吐司', price: 60 },{ name: '檸檬雞胸蛋吐司', price: 60 },
+                { name: '火腿蛋吐司', price: 35, addCheese: true }, { name: '豬肉蛋吐司', price: 40, addCheese: true },
+                { name: '培根蛋吐司', price: 40, addCheese: true }, { name: '肉鬆蛋吐司', price: 40, addCheese: true },
+                { name: '香雞蛋吐司', price: 45, addCheese: true }, { name: '薯餅蛋吐司', price: 45, addCheese: true },
+                { name: '里肌蛋吐司', price: 50, addCheese: true }, { name: '鮪魚蛋吐司', price: 50, addCheese: true },
+                { name: '牛肉蛋吐司', price: 60, addCheese: true }, { name: '燻雞肉片蛋吐司', price: 60, addCheese: true },
+                { name: '起司豬排蛋吐司', price: 60 }, { name: '檸檬雞胸蛋吐司', price: 60 },
                 { name: '咔啦雞蛋吐司', price: 70, addCheese: true, options:[{title:'口味', choices:['原味','辣味']}] },
                 { name: '勁辣雞腿蛋吐司', price: 70, addCheese: true }, { name: '西西里雞排蛋吐司', price: 70, addCheese: true },
                 { name: '原汁厚牛蛋吐司', price: 85, addCheese: true }, { name: '招牌總匯吐司', price: 70, addCheese: true },
@@ -126,13 +124,13 @@
                 { name: '咔啦雞總匯吐司', price: 80, addCheese: true, options:[{title:'口味', choices:['原味','辣味']}] }
             ]},
             { id: 'cat2_burger', name: '🍔 2. 漢堡系列', items: [
-               { name: '煎蛋漢堡', price: 35, addCheese: true }, { name: '起司蛋漢堡', price: 40 },
-                { name: '火腿蛋漢堡', price: 45, addCheese: true }, { name: '豬肉蛋漢堡', price: 50, addCheese: true }, // <-- 加了逗號
-                { name: '培根蛋漢堡', price: 50, addCheese: true },{ name: '肉鬆蛋漢堡', price: 50, addCheese: true },
-                { name: '香雞蛋漢堡', price: 50, addCheese: true },{ name: '薯餅蛋漢堡', price: 50, addCheese: true },
-                { name: '里肌蛋漢堡', price: 60, addCheese: true },{ name: '鮪魚蛋漢堡', price: 60, addCheese: true },
-                { name: '牛肉蛋漢堡', price: 70, addCheese: true },{ name: '燻雞肉片蛋漢堡', price: 70, addCheese: true },
-                { name: '起司豬排蛋漢堡', price: 70 },{ name: '檸檬雞胸蛋漢堡', price: 70 },
+                { name: '煎蛋漢堡', price: 35, addCheese: true }, { name: '起司蛋漢堡', price: 40 },
+                { name: '火腿蛋漢堡', price: 45, addCheese: true }, { name: '豬肉蛋漢堡', price: 50, addCheese: true },
+                { name: '培根蛋漢堡', price: 50, addCheese: true }, { name: '肉鬆蛋漢堡', price: 50, addCheese: true },
+                { name: '香雞蛋漢堡', price: 50, addCheese: true }, { name: '薯餅蛋漢堡', price: 50, addCheese: true },
+                { name: '里肌蛋漢堡', price: 60, addCheese: true }, { name: '鮪魚蛋漢堡', price: 60, addCheese: true },
+                { name: '牛肉蛋漢堡', price: 70, addCheese: true }, { name: '燻雞肉片蛋漢堡', price: 70, addCheese: true },
+                { name: '起司豬排蛋漢堡', price: 70 }, { name: '檸檬雞胸蛋漢堡', price: 70 },
                 { name: '咔啦雞蛋漢堡', price: 80, addCheese: true, options:[{title:'口味', choices:['原味','辣味']}] },
                 { name: '勁辣雞腿蛋漢堡', price: 80, addCheese: true }, { name: '西西里雞排蛋漢堡', price: 80, addCheese: true },
                 { name: '原汁厚牛蛋漢堡', price: 90, addCheese: true }, { name: '招牌總匯漢堡', price: 70, addCheese: true },
@@ -147,7 +145,7 @@
                 { name: '香雞蛋餅', price: 45, addCheese: true }, { name: '薯餅蛋餅', price: 45, addCheese: true }, 
                 { name: '里肌蛋餅', price: 50, addCheese: true }, { name: '鮪魚蛋餅', price: 50, addCheese: true },
                 { name: '燻雞肉片蛋餅', price: 50, addCheese: true }, { name: '檸檬雞胸蛋餅', price: 50, addCheese: true },
-                { name: '勁辣雞腿蛋餅', price: 60, addCheese: true }, { name: '咔啦雞蛋餅', price: 60, addCheese: true }, // <-- 加了逗號
+                { name: '勁辣雞腿蛋餅', price: 60, addCheese: true }, { name: '咔啦雞蛋餅', price: 60, addCheese: true },
                 { name: '原味河粉', price: 35, addCheese: true }, { name: '起司河粉', price: 45, addCheese: true },
                 { name: '火腿河粉', price: 45, addCheese: true }, { name: '玉米河粉', price: 50, addCheese: true },
                 { name: '培根河粉', price: 50, addCheese: true }, { name: '肉鬆河粉', price: 50, addCheese: true }, 
@@ -225,7 +223,7 @@
             container.innerHTML = '';
             MENU_DATA.forEach(cat => {
                 const div = document.createElement('div');
-                div.className = 'border border-gray-100 rounded-3xl bg-white overflow-hidden shadow-sm';
+                div.className = 'border border-gray-100 rounded-3xl bg-white overflow-hidden shadow-sm mb-3';
                 div.innerHTML = `
                     <button onclick="toggleCategory('${cat.id}')" class="w-full flex justify-between items-center p-5 hover:bg-emerald-50 transition-colors">
                         <span class="font-black text-gray-700">${cat.name}</span>
@@ -256,11 +254,14 @@
 
         function openModal(catId, itemIdx) {
             const cat = MENU_DATA.find(c => c.id === catId);
-            tempItem = { ...cat.items[itemIdx], catName: cat.name };
+            const rawItem = cat.items[itemIdx];
+            tempItem = { ...rawItem, catName: cat.name };
             tempQty = 1;
+            
             document.getElementById('modal-cat').innerText = tempItem.catName;
             document.getElementById('modal-title').innerText = tempItem.name;
             document.getElementById('modal-qty').innerText = tempQty;
+            
             const optBox = document.getElementById('modal-options');
             optBox.innerHTML = '';
             
@@ -347,7 +348,7 @@
             if (!name) return alert('請輸入訂購人姓名！');
             const list = document.getElementById('confirm-list');
             list.innerHTML = `<p class="font-bold text-gray-800 border-b pb-2 mb-4">👤 訂購人：${name}</p>`;
-            cart.forEach((item, idx) => {
+            cart.forEach(item => {
                 const displayName = item.name.replace('果醬', '');
                 list.innerHTML += `
                     <div class="mb-3 bg-slate-50 p-4 rounded-2xl flex justify-between items-center border border-slate-100">
@@ -365,44 +366,17 @@
 
         function closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); }
 
-        function getVisualLength(str) {
-            let len = 0;
-            for (let i = 0; i < str.length; i++) {
-                const c = str.charCodeAt(i);
-                if ((c >= 0x0001 && c <= 0x007e) || (0xff60 <= c && c <= 0xff9f)) {
-                    len += 1;
-                } else {
-                    len += 2;
-                }
-            }
-            return len;
-        }
-
         function sendToLine() {
             const name = document.getElementById('user-name').value;
             const note = document.getElementById('order-note').value.trim();
             const total = document.getElementById('cart-total').innerText;
-            
-            let msg = `【 ☕ 早安點餐單 】\n`;
-            msg += `👤 訂購人：${name}\n`;
-            msg += `━━━━━━━━━━\n`;
-            
-            const NAME_COLUMN_WIDTH = 10;
-
+            let msg = `【 ☕ 早安點餐單 】\n👤 訂購人：${name}\n━━━━━━━━━━\n`;
             cart.forEach((item, idx) => {
                 const cleanName = item.name.replace('果醬', '');
-                const fullItemName = `${item.opts}${cleanName}`;
-                const visualLen = getVisualLength(fullItemName);
-                const paddingNeeded = Math.max(0, NAME_COLUMN_WIDTH - visualLen);
-                const padding = " ".repeat(paddingNeeded);
-                msg += `${idx + 1}. ${fullItemName}${padding} x${item.qty} - ${item.price * item.qty}元\n`;
+                msg += `${idx + 1}. ${item.opts}${cleanName} x${item.qty} - ${item.price * item.qty}元\n`;
             });
-            
             msg += `━━━━━━━━━━━\n`;
-            if (note) {
-                msg += `📝 備註：${note}\n`;
-                msg += `━━━━━━━━━━━\n`;
-            }
+            if (note) msg += `📝 備註：${note}\n━━━━━━━━━━━\n`;
             msg += `💰 總計：${total} 元`;
             window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
         }
