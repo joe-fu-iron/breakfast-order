@@ -1,4 +1,4 @@
-rbt <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -79,7 +79,7 @@ rbt <!DOCTYPE html>
     </div>
 
     <div id="confirm-modal" class="fixed inset-0 bg-black/80 hidden z-[60] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-slide-up">
+        <div class="bg-white w-full max-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-slide-up">
             <div class="bg-emerald-600 p-6 text-white text-center">
                 <h3 class="text-lg font-black tracking-widest">訂單詳情確認</h3>
             </div>
@@ -101,6 +101,7 @@ rbt <!DOCTYPE html>
     </div>
 
     <script>
+        // 修正後的 MENU_DATA，添加了遺失的逗號
         const MENU_DATA = [
             { id: 'cat1', name: '🍱 1. 經典組合套餐 (附中紅茶)', items: [
                 { name: '紅茶/中港套餐', price: 85, desc: '煎餃5顆、蘿蔔糕1片、荷包蛋', temps: ['冰', '溫'], addCheese: true },
@@ -112,7 +113,7 @@ rbt <!DOCTYPE html>
             ]},
             { id: 'cat2_toast', name: '🍞 2. 吐司系列', items: [
                 { name: '煎蛋吐司', price: 30, addCheese: true }, { name: '起司蛋吐司', price: 35 },
-                { name: '火腿蛋吐司', price: 35, addCheese: true }, { name: '豬肉蛋吐司', price: 40, addCheese: true }
+                { name: '火腿蛋吐司', price: 35, addCheese: true }, { name: '豬肉蛋吐司', price: 40, addCheese: true }, // <-- 加了逗號
                 { name: '培根蛋吐司', price: 40, addCheese: true },{ name: '肉鬆蛋吐司', price: 40, addCheese: true },
                 { name: '香雞蛋吐司', price: 45, addCheese: true },{ name: '薯餅蛋吐司', price: 45, addCheese: true },
                 { name: '里肌蛋吐司', price: 50, addCheese: true },{ name: '鮪魚蛋吐司', price: 50, addCheese: true },
@@ -126,7 +127,7 @@ rbt <!DOCTYPE html>
             ]},
             { id: 'cat2_burger', name: '🍔 2. 漢堡系列', items: [
                { name: '煎蛋漢堡', price: 35, addCheese: true }, { name: '起司蛋漢堡', price: 40 },
-                { name: '火腿蛋漢堡', price: 45, addCheese: true }, { name: '豬肉蛋漢堡', price: 50, addCheese: true }
+                { name: '火腿蛋漢堡', price: 45, addCheese: true }, { name: '豬肉蛋漢堡', price: 50, addCheese: true }, // <-- 加了逗號
                 { name: '培根蛋漢堡', price: 50, addCheese: true },{ name: '肉鬆蛋漢堡', price: 50, addCheese: true },
                 { name: '香雞蛋漢堡', price: 50, addCheese: true },{ name: '薯餅蛋漢堡', price: 50, addCheese: true },
                 { name: '里肌蛋漢堡', price: 60, addCheese: true },{ name: '鮪魚蛋漢堡', price: 60, addCheese: true },
@@ -146,7 +147,7 @@ rbt <!DOCTYPE html>
                 { name: '香雞蛋餅', price: 45, addCheese: true }, { name: '薯餅蛋餅', price: 45, addCheese: true }, 
                 { name: '里肌蛋餅', price: 50, addCheese: true }, { name: '鮪魚蛋餅', price: 50, addCheese: true },
                 { name: '燻雞肉片蛋餅', price: 50, addCheese: true }, { name: '檸檬雞胸蛋餅', price: 50, addCheese: true },
-                { name: '勁辣雞腿蛋餅', price: 60, addCheese: true }, { name: '咔啦雞蛋餅', price: 60, addCheese: true }
+                { name: '勁辣雞腿蛋餅', price: 60, addCheese: true }, { name: '咔啦雞蛋餅', price: 60, addCheese: true }, // <-- 加了逗號
                 { name: '原味河粉', price: 35, addCheese: true }, { name: '起司河粉', price: 45, addCheese: true },
                 { name: '火腿河粉', price: 45, addCheese: true }, { name: '玉米河粉', price: 50, addCheese: true },
                 { name: '培根河粉', price: 50, addCheese: true }, { name: '肉鬆河粉', price: 50, addCheese: true }, 
@@ -167,7 +168,7 @@ rbt <!DOCTYPE html>
                 { name: '香雞牛角可頌', price: 60 }, { name: '薯餅牛角可頌', price: 60 },
                 { name: '里肌牛角可頌', price: 70 }, { name: '鮪魚牛角可頌', price: 70 },
                 { name: '檸檬雞胸牛角可頌', price: 70 }, { name: '勁辣雞腿牛角可頌', price: 80 },
-             { name: '果醬牛角可頌', price: 45, options: [{ title: '口味', choices: ['花生', '草莓', '巧克力', '奶酥', '藍莓', '香蒜'] }]}
+                { name: '果醬牛角可頌', price: 45, options: [{ title: '口味', choices: ['花生', '草莓', '巧克力', '奶酥', '藍莓', '香蒜'] }]}
             ]},
             { id: 'cat4_jam', name: '🍓 4. 果醬系列 (吐司/厚片)', items: [
                 { name: '果醬吐司', price: 20, options: [{ title: '口味', choices: ['花生', '草莓', '巧克力', '奶酥', '藍莓', '香蒜'] }] },
@@ -179,7 +180,7 @@ rbt <!DOCTYPE html>
                 { name: '火腿蛋乳酪餅', price: 45 }, { name: '培根蛋乳酪餅', price: 50 },
                 { name: '肉鬆蛋乳酪餅', price: 50 }, { name: '香雞蛋乳酪餅', price: 50 },
                 { name: '薯餅蛋乳酪餅', price: 50 }, { name: '里肌蛋乳酪餅', price: 60 },
-                { name: '鮪魚蛋乳酪餅', price: 60 }, { name: '牛肉蛋乳酪餅', price: 60 },
+                { name: '鮪魚蛋乳酪餅', price: 60 }, { name: '牛肉蛋乳酪餅', price: 60 }
             ]},
             { id: 'cat5_noodles', name: '🍝 5. 鐵板麵 (附蛋)', items: [
                 { name: '蘑菇麵', price: 55 }, { name: '黑胡椒麵', price: 55 },
@@ -221,6 +222,7 @@ rbt <!DOCTYPE html>
 
         function renderMenu() {
             const container = document.getElementById('menu-accordion');
+            container.innerHTML = '';
             MENU_DATA.forEach(cat => {
                 const div = document.createElement('div');
                 div.className = 'border border-gray-100 rounded-3xl bg-white overflow-hidden shadow-sm';
@@ -325,99 +327,4 @@ rbt <!DOCTYPE html>
                     if (tempItem.types && tempItem.types[text]) unitPrice = tempItem.types[text];
                 }
             });
-            cart.push({ name: tempItem.name, price: unitPrice, qty: tempQty, opts: chosenOpts.join('') });
-            updateCartUI();
-            closeModal();
-        }
-
-        function updateCartUI() {
-            const count = cart.reduce((sum, item) => sum + item.qty, 0);
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            document.getElementById('cart-count').innerText = count;
-            document.getElementById('cart-total').innerText = total;
-        }
-
-        function clearCart() { if (confirm('確定要清空點餐清單嗎？')) { cart = []; updateCartUI(); } }
-
-        function showConfirmModal() {
-            if (cart.length === 0) return alert('清單是空的！');
-            const name = document.getElementById('user-name').value;
-            if (!name) return alert('請輸入訂購人姓名！');
-            const list = document.getElementById('confirm-list');
-            list.innerHTML = `<p class="font-bold text-gray-800 border-b pb-2 mb-4">👤 訂購人：${name}</p>`;
-            cart.forEach((item, idx) => {
-                // 預覽視窗也同樣移除「果醬」字眼
-                const displayName = item.name.replace('果醬', '');
-                list.innerHTML += `
-                    <div class="mb-3 bg-slate-50 p-4 rounded-2xl flex justify-between items-center border border-slate-100">
-                        <div class="flex-grow">
-                            <p class="font-bold text-gray-700">${item.opts}${displayName} x${item.qty}</p>
-                        </div>
-                        <div class="text-right ml-4">
-                            <span class="font-black text-emerald-600">$${item.price * item.qty}</span>
-                        </div>
-                    </div>`;
-            });
-            document.getElementById('confirm-total').innerText = document.getElementById('cart-total').innerText;
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-        function closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); }
-
-        // 計算視覺寬度邏輯
-        function getVisualLength(str) {
-            let len = 0;
-            for (let i = 0; i < str.length; i++) {
-                const c = str.charCodeAt(i);
-                if ((c >= 0x0001 && c <= 0x007e) || (0xff60 <= c && c <= 0xff9f)) {
-                    len += 1;
-                } else {
-                    len += 2;
-                }
-            }
-            return len;
-        }
-
-        function sendToLine() {
-            const name = document.getElementById('user-name').value;
-            const note = document.getElementById('order-note').value.trim();
-            const total = document.getElementById('cart-total').innerText;
-            
-            let msg = `【 ☕ 早安點餐單 】\n`;
-            msg += `👤 訂購人：${name}\n`;
-            msg += `━━━━━━━━━━\n`;
-            
-            const NAME_COLUMN_WIDTH = 10;
-
-            cart.forEach((item, idx) => {
-                // 重點修正：將「果醬吐司」替換為「吐司」
-                const cleanName = item.name.replace('果醬', '');
-                const fullItemName = `${item.opts}${cleanName}`;
-                
-                const visualLen = getVisualLength(fullItemName);
-                const paddingNeeded = Math.max(0, NAME_COLUMN_WIDTH - visualLen);
-                const padding = " ".repeat(paddingNeeded);
-                
-                msg += `${idx + 1}. ${fullItemName}${padding} x${item.qty} - ${item.price * item.qty}元\n`;
-            });
-            
-            msg += `━━━━━━━━━━━\n`;
-            if (note) {
-                msg += `📝 備註：${note}\n`;
-                msg += `━━━━━━━━━━━\n`;
-            }
-            
-            msg += `               💰 總計：${total} 元`;
-            
-            window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
-        }
-
-        function saveUserData() { localStorage.setItem('breakfast_user_name', document.getElementById('user-name').value); }
-
-        window.onload = () => {
-            document.getElementById('user-name').value = localStorage.getItem('breakfast_user_name') || '';
-            renderMenu();
-        };
-    </script>
-</body>
-</html>
+            cart.push({ name: tempItem.name, price: unitPrice, qty: tempQty, opts: chosenOpts
