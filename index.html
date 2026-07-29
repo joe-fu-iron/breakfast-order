@@ -34,7 +34,14 @@
         </section>
 
         <section class="px-4 pt-4 bg-slate-50">
-            <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm p-3">
+            <button type="button" onclick="toggleQuickOrder()" class="w-full flex items-center justify-between bg-white border border-emerald-100 rounded-2xl px-4 py-3 text-emerald-700 shadow-sm active:scale-[.98]">
+                <span class="flex items-center gap-2 font-black text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18a6 6 0 0 0 6-6v-1m-12 1v-1a6 6 0 0 0 6 6m0 0v3m-3 0h6M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"></path></svg>
+                    語音／關鍵字快速點餐
+                </span>
+                <svg id="quick-order-arrow" class="w-5 h-5 arrow-rotate" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"></path></svg>
+            </button>
+            <div id="quick-order-panel" class="hidden bg-white rounded-3xl border border-emerald-100 shadow-sm p-3 mt-2">
                 <div class="flex gap-2">
                     <div class="relative flex-grow">
                         <input type="search" id="keyword-search" class="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-400 rounded-2xl pl-10 pr-4 py-3 text-sm font-bold outline-none" placeholder="輸入關鍵字，如：里肌、蛋餅、咖啡">
@@ -410,6 +417,15 @@
             return String(text || '').toLowerCase().replace(/[\s/／()（）-]/g, '');
         }
 
+        function toggleQuickOrder(forceClose = false) {
+            const panel = document.getElementById('quick-order-panel');
+            const arrow = document.getElementById('quick-order-arrow');
+            const shouldOpen = forceClose ? false : panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !shouldOpen);
+            arrow.classList.toggle('rotate-180', shouldOpen);
+            if (shouldOpen) setTimeout(() => document.getElementById('keyword-search').focus(), 50);
+        }
+
         function searchMenu(keyword) {
             const resultsBox = document.getElementById('search-results');
             const status = document.getElementById('search-status');
@@ -445,6 +461,7 @@
         }
 
         function chooseSearchResult(catId, itemIdx) {
+            toggleQuickOrder(true);
             openModal(catId, itemIdx);
         }
 
