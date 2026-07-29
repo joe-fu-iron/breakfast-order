@@ -13,8 +13,11 @@
         .arrow-rotate { transition: transform 0.3s; }
         .rotate-180 { transform: rotate(180deg); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        .search-highlight { background: linear-gradient(transparent 55%, #a7f3d0 55%); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes listeningPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,.35); } 50% { box-shadow: 0 0 0 10px rgba(16,185,129,0); } }
+        .is-listening { animation: listeningPulse 1.2s infinite; background: #059669 !important; color: white !important; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-40">
@@ -28,6 +31,22 @@
         <section class="p-4 border-b bg-white sticky top-0 z-10 shadow-sm flex items-center space-x-3">
             <label class="text-emerald-900 text-sm font-black shrink-0">訂購人</label>
             <input type="text" id="user-name" class="flex-grow border-b-2 border-gray-100 focus:border-emerald-500 outline-none px-2 py-1 text-sm font-medium transition-all" placeholder="請輸入姓名..." onchange="saveUserData()">
+        </section>
+
+        <section class="px-4 pt-4 bg-slate-50">
+            <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm p-3">
+                <div class="flex gap-2">
+                    <div class="relative flex-grow">
+                        <input type="search" id="keyword-search" class="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-400 rounded-2xl pl-10 pr-4 py-3 text-sm font-bold outline-none" placeholder="輸入關鍵字，如：里肌、蛋餅、咖啡">
+                        <svg class="absolute left-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg>
+                    </div>
+                    <button id="voice-search-btn" type="button" onclick="startVoiceSearch()" class="w-12 h-12 shrink-0 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center active:scale-90" aria-label="語音輸入關鍵字">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18a6 6 0 0 0 6-6v-1m-12 1v-1a6 6 0 0 0 6 6m0 0v3m-3 0h6M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"></path></svg>
+                    </button>
+                </div>
+                <p id="search-status" class="text-[10px] text-gray-400 font-bold px-1 mt-2">可打字或按麥克風說出餐點關鍵字</p>
+                <div id="search-results" class="hidden mt-3 space-y-2 max-h-72 overflow-y-auto"></div>
+            </div>
         </section>
 
         <main class="flex-grow p-4 space-y-3" id="menu-accordion"></main>
@@ -349,16 +368,24 @@
             if (!name) return alert('請輸入訂購人姓名！');
             const list = document.getElementById('confirm-list');
             list.innerHTML = `<p class="font-bold text-gray-800 border-b pb-2 mb-4">👤 訂購人：${name}</p>`;
-            cart.forEach(item => {
+            cart.forEach((item, index) => {
                 const displayName = item.name.replace('果醬', '');
                 list.innerHTML += `
-                    <div class="mb-3 bg-slate-50 p-4 rounded-2xl flex justify-between items-center border border-slate-100">
+                    <div class="mb-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <div class="flex justify-between items-center">
                         <div class="flex-grow">
-                            <p class="font-bold text-gray-700">${item.opts}${displayName} x${item.qty}</p>
+                            <p class="font-bold text-gray-700">${item.opts}${displayName}</p>
+                            <p class="text-[10px] text-gray-400 font-bold mt-1">單價 $${item.price}</p>
                         </div>
                         <div class="text-right ml-4">
                             <span class="font-black text-emerald-600">$${item.price * item.qty}</span>
                         </div>
+                      </div>
+                      <div class="flex justify-end items-center gap-3 mt-3 pt-3 border-t border-slate-200">
+                        <button onclick="changeCartQty(${index}, -1)" class="w-9 h-9 bg-white border border-gray-200 rounded-xl font-black text-gray-500 active:scale-90" aria-label="減少一份">−</button>
+                        <span class="w-8 text-center font-black text-gray-700">${item.qty}</span>
+                        <button onclick="changeCartQty(${index}, 1)" class="w-9 h-9 bg-emerald-600 rounded-xl font-black text-white active:scale-90" aria-label="增加一份">＋</button>
+                      </div>
                     </div>`;
             });
             document.getElementById('confirm-total').innerText = document.getElementById('cart-total').innerText;
@@ -366,6 +393,94 @@
         }
 
         function closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); }
+
+        function changeCartQty(index, delta) {
+            if (!cart[index]) return;
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            updateCartUI();
+            if (cart.length === 0) {
+                closeConfirmModal();
+                return alert('點餐清單已清空');
+            }
+            showConfirmModal();
+        }
+
+        function normalizeKeyword(text) {
+            return String(text || '').toLowerCase().replace(/[\s/／()（）-]/g, '');
+        }
+
+        function searchMenu(keyword) {
+            const resultsBox = document.getElementById('search-results');
+            const status = document.getElementById('search-status');
+            const normalized = normalizeKeyword(keyword);
+            if (!normalized) {
+                resultsBox.innerHTML = '';
+                resultsBox.classList.add('hidden');
+                status.innerText = '可打字或按麥克風說出餐點關鍵字';
+                return;
+            }
+
+            const matches = [];
+            MENU_DATA.forEach(cat => {
+                cat.items.forEach((item, itemIdx) => {
+                    const searchable = normalizeKeyword(`${item.name}${item.desc || ''}${cat.name}`);
+                    if (searchable.includes(normalized)) matches.push({ cat, item, itemIdx });
+                });
+            });
+
+            status.innerText = matches.length ? `找到 ${matches.length} 個相關餐點，點選即可設定規格` : `找不到「${keyword}」相關餐點，請換個關鍵字`;
+            resultsBox.innerHTML = matches.slice(0, 30).map(({ cat, item, itemIdx }) => `
+                <button type="button" onclick="chooseSearchResult('${cat.id}', ${itemIdx})" class="w-full text-left p-3 rounded-2xl border border-slate-100 hover:border-emerald-300 hover:bg-emerald-50 transition-colors">
+                    <div class="flex justify-between gap-3">
+                        <div>
+                            <p class="font-black text-gray-700">${item.name}</p>
+                            <p class="text-[10px] text-gray-400 font-bold mt-1">${cat.name.replace(/^[^ ]+ /, '')}${item.desc ? ` · ${item.desc}` : ''}</p>
+                        </div>
+                        <span class="text-emerald-600 font-black shrink-0">$${item.price}${item.types ? '~' : ''}</span>
+                    </div>
+                </button>
+            `).join('');
+            resultsBox.classList.toggle('hidden', matches.length === 0);
+        }
+
+        function chooseSearchResult(catId, itemIdx) {
+            openModal(catId, itemIdx);
+        }
+
+        function startVoiceSearch() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const status = document.getElementById('search-status');
+            const voiceBtn = document.getElementById('voice-search-btn');
+            if (!SpeechRecognition) {
+                status.innerText = '此瀏覽器不支援語音辨識，仍可直接打字搜尋';
+                return alert('目前瀏覽器不支援語音輸入，請改用 Chrome／Safari，或直接打字搜尋。');
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'zh-TW';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.onstart = () => {
+                voiceBtn.classList.add('is-listening');
+                status.innerText = '正在聆聽，請說出餐點關鍵字…';
+            };
+            recognition.onresult = event => {
+                const keyword = event.results[0][0].transcript.trim();
+                document.getElementById('keyword-search').value = keyword;
+                searchMenu(keyword);
+            };
+            recognition.onerror = event => {
+                const messages = {
+                    'not-allowed': '請允許麥克風權限後再試一次',
+                    'no-speech': '沒有聽到內容，請再說一次',
+                    'network': '語音服務暫時無法連線，請改用打字搜尋'
+                };
+                status.innerText = messages[event.error] || '語音辨識失敗，請再試一次';
+            };
+            recognition.onend = () => voiceBtn.classList.remove('is-listening');
+            recognition.start();
+        }
 
         function sendToLine() {
             const name = document.getElementById('user-name').value;
@@ -387,6 +502,7 @@
         window.onload = () => {
             document.getElementById('user-name').value = localStorage.getItem('breakfast_user_name') || '';
             renderMenu();
+            document.getElementById('keyword-search').addEventListener('input', event => searchMenu(event.target.value));
         };
     </script>
 </body>
